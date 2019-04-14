@@ -1,0 +1,21 @@
+[EN]
+First use:
+	Download the folder and all the files inside it
+	Execute "Config.bat" to create the necessary folders for the operation
+	Copy all content to the C:\Fiscal
+	Copy or create a shortcut on the Desktop, to the file "TAX.bat"
+
+How to use:
+	Start the "TAX.bat" file
+	Follow the on-screen instructions
+
+[PT]
+Primeiro uso: 
+	Faça o download da pasta e de todos os arquivos dentro dela
+	Execute a "Config.bat" para criar as pastas necessarias para o funcionamento
+	Copie todo o conteudo para a pasta C:\Fiscal
+	Copie ou crie um atalho no Desktop, para o arquivo "TAX.bat"
+
+Como utilizar: 
+	Inicie o arquivo "TAX.bat"
+	Siga as orientações na tela
