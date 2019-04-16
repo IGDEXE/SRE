@@ -1154,3 +1154,65 @@ function Ativar-Windows10 {
     }
 }
 
+# Desativar usuario
+function Desativar-Usuario {
+    param (
+        [Parameter(Mandatory = $True)]
+        $userDesligados
+    )
+    # Carregando modulos
+    Write-Host "Carregando modulos..."
+    Import-Module ActiveDirectory
+    # Recebe as credenciais de ADM
+    $userADM = $env:UserName
+    $userADM = get-aduser -identity $useradm
+    $userfirst = $userADM.givenName
+    $userlast = $userADM.Surname
+    $Domain = (Get-ADDomain).DNSRoot
+    $DomainName = (Get-ADDomain).NetBIOSName
+    $DomainDC = (Get-ADDomain).DistinguishedName
+    $ouDesligados = "OU=Usuarios Desativados,$DomainDC"
+    $userAdm = "$Domain\adm.$userfirst$userlast"
+    $CredDomain = Get-Credential -Message "Informe as credenciais de Administrador do AD $DomainName" -UserName $userAdm
+    # Faz o loop
+    foreach ($userDesligado in $userDesligados) {
+        # Confirma exclusao
+        $TaSerto = $false
+        DO {
+            Clear-Host
+            # Recebe o usuario
+            Write-Host "Usuario que vai ser desligado: $userDesligado"
+            Write-Host "Digite 1 para confirmar que o usuario esta correto"
+            $escolha = Read-Host "Ou 2 para digitar novamente"
+            if ($escolha -eq 1) { $TaSerto = $true }
+            if ($escolha -eq 2) { $userDesligado = Read-Host "Informe o usuario desligado (ex: joao.silva)" }
+        } While ($TaSerto -eq $false)
+        # Configura usuario
+        Clear-Host
+        $ADUser = $userDesligado
+        try {
+            Write-Host "Desligando o usuario $ADUser"
+            # Removendo grupos do AD
+            $userGroups = Get-ADUser -Identity $ADUser -Properties *
+            $userGroups = $userGroups.MemberOf
+            foreach ($group in $userGroups) {
+                Remove-ADGroupMember -Identity $group -Members $ADUser -Confirm:$false -Credential $CredDomain
+            }
+            # Move de OU
+            $OU = Get-ADUser -Identity $ADUser -Properties *
+            $OU = $OU.DistinguishedName
+            Move-ADObject -Identity "$OU" -TargetPath "$ouDesligados" -Credential $CredDomain
+            # Desativa o usuario
+            Set-ADUser -Identity $ADUser -Enabled $false -Credential $CredDomain
+            # Exibe informacoes
+            Clear-Host
+            Write-Host "Usuario $ADUser desligado com sucesso"
+            Get-ADUser -Identity $ADUser -Properties * | Select-Object Name,Mail,MemberOf,DistinguishedName,Enabled
+        }
+        catch {
+            $ErrorMessage = $_.Exception.Message
+            Write-Host "Erro ao desligar o usuario $userDesligado"
+            Write-Host "Erro: $ErrorMessage"
+        }
+    }
+}
