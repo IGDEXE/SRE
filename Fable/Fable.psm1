@@ -448,7 +448,7 @@ function Recriar-Usuario {
                 $hash = Get-Date -Format yyyyMMddTHHmmssffff
                 Move-Item -Path "\\$computador\C$\Users\$($objUser.value)" -Destination "\\$computador\C$\Users\$($objUser.value).$hash" -Force
                 # Verifica se a .OLD foi criada
-                $valida = Test-Path  "\\$computador\C$\Users\$($objUser.value).$hash"
+                $valida = Test-Path "\\$computador\C$\Users\$($objUser.value).$hash"
 
                 if ($valida -eq  "True") {
                     # Executamos o procedimento de remoção
@@ -1215,4 +1215,77 @@ function Desativar-Usuario {
             Write-Host "Erro: $ErrorMessage"
         }
     }
+}
+
+# Verificar licenciamento do Office - Terminal
+function Verificar-LicenciamentoOffice {
+    param (
+        [parameter(position=0)]
+        $Path = "C:\TI\Office\Relatorios",
+        [parameter(position=1)]
+        $Dominio = "Contoso.com.br",
+        [parameter(position=2)]
+        $Empresa = "CONTOSO"
+    )
+    # Configuracoes gerais
+    $hash = Get-Date -Format yyyyMMddTHHmmssffff
+    $LogPath = "$Path\365Relatorio-$hash.txt"
+    # Verifica se a pasta de LOG existe
+    $valida = Test-Path "$Path"
+    if ($valida -ne "True") {
+        # Cria a pasta
+        $off = mkdir $Path
+        Write-Host "Criado a pasta de LOGs: $Path"
+    }
+    try {
+        # Notifica o usuario
+        Write-host 'Configurando acesso'
+        # Importa o modulo
+        Import-Module MSOnline
+        # Recebe a credencial
+        $userADM = $env:UserName
+        $userADM += "@$Dominio"
+        $LiveCred = Get-Credential -Message "Informe as credenciais de Administrador do Office 365" -UserName $userADM
+        # Cria uma nova secao para edicao 
+        $Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri 'https://ps.outlook.com/powershell/' -Credential $LiveCred -Authentication Basic -AllowRedirection 
+        Import-PSSession $Session
+        # Conecta a secao
+        Connect-MsolService -Credential $LiveCred
+        # Recebe os dados
+        $SKU = $Empresa + ":EXCHANGESTANDARD"
+        $Ex = Get-MsolAccountSku | where {$_.AccountSkuId -eq "$SKU"}
+        $SKU = $Empresa + ":STANDARDPACK"
+        $E1 = Get-MsolAccountSku | where {$_.AccountSkuId -eq "$SKU"}
+        $SKU = $Empresa + ":ENTERPRISEPACK"
+        $E3 = Get-MsolAccountSku | where {$_.AccountSkuId -eq "$SKU"}
+        # Filtra e exibe os dados
+        Clear-Host
+        Write-Host "Relatorio de licenciamento"
+        Add-Content -Path "$LogPath" -Value "Relatorio de licenciamento"
+        # Exchange
+        $total = $Ex.ActiveUnits
+        $livre = $Ex.ConsumedUnits
+        $log = "Exchange Online - $livre/$total"
+        Write-Host "$log"
+        Add-Content -Path "$LogPath" -Value $log
+        # E1
+        $total = $E1.ActiveUnits
+        $livre = $E1.ConsumedUnits
+        $log = "E1 - $livre/$total"
+        Write-Host "$log"
+        Add-Content -Path "$LogPath" -Value $log
+        # E3
+        $total = $E3.ActiveUnits
+        $livre = $E3.ConsumedUnits
+        $log = "E3 - $livre/$total"
+        Write-Host "$log"
+        Add-Content -Path "$LogPath" -Value $log
+        Write-host "Tambem disponivel em: $LogPath"
+    }
+    catch {
+        Clear-Host
+        $ErrorMessage = $_.Exception.Message
+        Write-Host "Um erro ocorreu ao tentar gerar o relatorio"
+        Write-Host "Erro: $ErrorMessage"
+    }  
 }
