@@ -1350,3 +1350,71 @@ function Verificar-DesligamentoPC {
         }
     }
 }
+
+# Criar usuarios no AD
+function Criar-Usuario {
+    <#
+        .SYNOPSIS 
+            Cria um novo usuario
+        .DESCRIPTION
+            Criar-Usuario Nome Sobrenome Usuario.Referencia
+    #>
+    param (
+        [parameter(position=0,Mandatory=$True)]
+        $nome,
+        [parameter(position=1,Mandatory=$True)]
+        $sobrenome,
+        [parameter(position=2)]
+        $referencia = "usuario.referencia"
+    )
+    # Recebe as credenciais de ADM
+    $userADM = $env:UserName
+    $userADM = get-aduser -identity $useradm
+    $userfirst = $userADM.givenName
+    $userlast = $userADM.Surname
+    $Domain = (Get-ADDomain).DNSRoot
+    $DomainName = (Get-ADDomain).NetBIOSName
+    $DomainDC = (Get-ADDomain).DistinguishedName
+    $userAdm = "$Domain\adm.$userfirst$userlast"
+    $CredDomain = Get-Credential -Message "Informe as credenciais de Administrador do AD $DomainName" -UserName $userAdm
+    # Recebe os dados
+    Clear-Host
+    $Password = Get-Date -Format Pass@mmss
+    # Configuracao
+    $userName = "$nome $sobrenome"
+    $userAlias = ("$nome.$sobrenome").ToLower()
+    $userMail = "$userAlias@sinqia.com.br"
+    $OU = "OU=Users,$DomainDC"
+    # Cria o  usuario
+    try {
+        Clear-Host
+        Write-host "Criando o usuario $userAlias"
+        New-ADUser -SamAccountName $userAlias -Name $userName -GivenName $nome -Surname $sobrenome -EmailAddress $userMail -Path "$OU" -Credential $CredDomain
+        Set-ADUser -Identity $userAlias -UserPrincipalName $userMail -Credential $CredDomain
+        Set-ADUser -Identity $userAlias -Replace @{'msRTCSIP-PrimaryUserAddress'="SIP:$userMail"} -Credential $CredDomain
+        Set-ADUser -Identity $userAlias -Replace @{proxyAddresses="SMTP:$userMail","SIP:$userMail"} -Credential $CredDomain
+        Set-ADUser -Identity $userAlias -Replace @{targetAddress="SMTP:$userMail"} -Credential $CredDomain
+        Set-ADUser -Identity $userAlias -Replace @{DisplayName="$userName"} -Credential $CredDomain
+        Set-ADUser -Identity $userAlias -Replace @{displayNamePrintable="$userName"} -Credential $CredDomain
+        Set-ADUser -Identity $userAlias -Replace @{mailNickname="$userAlias"} -Credential $CredDomain
+        Set-ADAccountPassword -Identity $userAlias -NewPassword (ConvertTo-SecureString -AsPlainText $Password -Force) -Credential $CredDomain
+        Set-ADUser -Identity $userAlias -Enabled $true -Credential $CredDomain
+        $host.ui.RawUI.WindowTitle = "Criando Usuario - User:$userAlias - Pass:$Password"
+        # Configura as referencias de grupo
+        $userRef = Get-ADUser -Identity $referencia -Properties *
+        $memberOf = $userRef.MemberOf
+        foreach ($group in $memberof) {
+            Add-ADGroupMember -Identity $group -Members $userAlias -Credential $CredDomain
+        }
+        # Exibe as informacoes do usuario
+        Clear-Host
+        Write-Host "Usuario criado com sucesso:"
+        Get-ADUser -Identity $userAlias -Properties * | Select-Object Name,Mail,proxyAddresses,targetAddress,msRTCSIP-PrimaryUserAddress,DistinguishedName,MemberOf
+        Write-Host "Senha: $Password"
+    }
+    catch {
+        $ErrorMessage = $_.Exception.Message
+        Write-Host "Erro ao criar o usuario $userAlias, favor revisar as informacoes"
+        Write-Host "Erro: $ErrorMessage"
+    }
+}
