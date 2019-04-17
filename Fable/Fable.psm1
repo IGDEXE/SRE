@@ -206,7 +206,7 @@ function Ativar-Windows7 {
                 Write-Host "O Windows esta ativo"    
             }
             else {
-                cscript //B "%windir%\system32\slmgr.vbs" /rearm
+                cscript //B "$env:WINDIR\system32\slmgr.vbs" /rearm
                 Write-Host "Reinicie o computador e verifique a ativacao"
             }
         }
