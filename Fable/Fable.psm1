@@ -275,9 +275,9 @@ function Copiar-Pasta {
             Copiar-Pasta "Pasta de origem" "Pasta de destino"
     #>
     Param (
-        [parameter(position=1)]
+        [parameter(position=1, Mandatory=$True)]
         $PastaDestino,
-        [parameter(position=0)]
+        [parameter(position=0, Mandatory=$True)]
         $PastaBase 
     )
     # Faz a copia dos arquivos
@@ -391,7 +391,7 @@ function Info-VM {
     #>
     param (
         [parameter(position=0)]
-        $VMServers
+        $VMServers = $Env:COMPUTERNAME
     )
 
     Clear-Host
