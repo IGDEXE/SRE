@@ -7,7 +7,10 @@
     Os comandos sao escritos em portugues, representam funcoes salvas nesse arquivo
 
     Comando para versionamento: Get-Date -Format yyyyMMddTHHmmssffff
-    Versao atual: 20190408T1402108437
+    Versao atual: 20190417T1108321041
+
+    Detalhes da versao: 20190417T1108321041
+    Versionamento modificado para o GitHub
 
     Detalhes da versao: 20190408T1402108437
     Adicionado o modulo: Ativar-Windows10
