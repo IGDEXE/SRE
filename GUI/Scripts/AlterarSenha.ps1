@@ -3,11 +3,14 @@
 
 # Recebe a biblioteca
 Add-Type -assembly System.Windows.Forms
+# Carrega o modulo
+Import-Module ActiveDirectory
 # Cria o formulario principal
 $GUI = New-Object System.Windows.Forms.Form
 # Configura o formulario
 $GUI.Text ='TI - Alterar Senha do AD' # Titulo
 $GUI.AutoSize = $true # Configura para aumentar caso necessario
+$GUI.StartPosition = 'CenterScreen' # Inicializa no centro da tela
 
 # Recebe as credenciais
 $userADM = $env:UserName
