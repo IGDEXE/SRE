@@ -25,3 +25,7 @@ Scripts relacionados ao gerenciamento de usuarios
 **Windows**
 
 Scripts relacionados a procedimentos de reparo ou configuração do Windows
+
+**GUI**
+
+Scripts com interface grafica
