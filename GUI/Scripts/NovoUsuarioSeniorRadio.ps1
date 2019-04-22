@@ -196,7 +196,7 @@ $Button.Add_Click(
             $nome = $txtNome.Text
             $sobrenome = $txtSobrenome.Text
             $setor = $cbxSetores.selectedItem
-            $License = $cbxOffice.selectedItem
+            #$License = $cbxOffice.selectedItem
             # Configura os dados
             $userName = "$nome $sobrenome"
             $userAlias = ("$nome.$sobrenome").ToLower()
