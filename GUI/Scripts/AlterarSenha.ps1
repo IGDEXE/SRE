@@ -63,6 +63,7 @@ $Button.Add_Click(
             $Conta = $TextBox.Text
             $Password = Get-Date -Format Sin@mmss
             Set-ADAccountPassword -Identity $Conta -NewPassword (ConvertTo-SecureString -AsPlainText "$Password" -Force) -Credential $CredDomain
+            Set-ADUser -Identity $Conta -changepasswordatlogon $true -Credential $CredDomain
             Unlock-ADAccount -Identity $Conta -Credential $CredDomain
             $resposta = "A senha da $conta foi alterada"
             $Linha2 = "Nova senha: $Password"

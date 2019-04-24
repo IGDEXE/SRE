@@ -3,6 +3,7 @@
 
 # Recebe a biblioteca
 Add-Type -assembly System.Windows.Forms
+Add-Type -AssemblyName PresentationFramework
 # Carrega o modulo
 Import-Module ActiveDirectory
 # Cria o formulario principal
@@ -82,14 +83,14 @@ $GUI.Controls.Add($txtReferencia)
 # Label para as opcoes de grupos
 $lblGrupos = New-Object System.Windows.Forms.Label
 $lblGrupos.Text = "Grupos:"
-$lblGrupos.Location  = New-Object System.Drawing.Point(0,110)
+$lblGrupos.Location  = New-Object System.Drawing.Point(0,90)
 $lblGrupos.AutoSize = $true
 $GUI.Controls.Add($lblGrupos)
 
 # Cria a caixa de texto para as opcoes dos grupos
 $cbxGrupos = New-Object System.Windows.Forms.CheckedListBox
 $cbxGrupos.Width = 300
-$cbxGrupos.Location  = New-Object System.Drawing.Point(80,110)
+$cbxGrupos.Location  = New-Object System.Drawing.Point(80,90)
 $cbxGrupos.Enabled = $false
 $GUI.Controls.Add($cbxGrupos)
 
@@ -122,7 +123,7 @@ $lbl2linha.Location  = New-Object System.Drawing.Point(0,210)
 $lbl2linha.AutoSize = $true
 $GUI.Controls.Add($lbl2linha)
 
-# Selecionar opcoes
+<# Selecionar opcoes
 $lblInfos = New-Object System.Windows.Forms.Label
 $lblInfos.Text = "Informacoes:"
 $lblInfos.Location  = New-Object System.Drawing.Point(0,90)
@@ -159,7 +160,7 @@ $cbxCargo.Items.Add("Sao Paulo")
 $cbxCargo.Items.Add("Rio de Janeiro")
 $cbxCargo.Items.Add("Belo Horizonte")
 $cbxCargo.Items.Add("Salvador")
-$GUI.Controls.Add($cbxCargo)
+$GUI.Controls.Add($cbxCargo) #>
 
 # Cria o evento do botao
 $btnVerificar.Add_Click(
@@ -169,6 +170,12 @@ $btnVerificar.Add_Click(
             # Configura as referencias de grupo
             $referencia = $txtReferencia.Text
             $cbxGrupos.Enabled = $true
+            # Adiciona os grupos principais
+            $gruposPrincipais = get-content "\\srsvm030\Scripts\NewUser\grupoList.txt"
+            foreach ($grupo in $gruposPrincipais) {
+                # Adiciona como opcao cada um dos setores
+                $cbxGrupos.Items.Add($grupo)
+            }
             $userRef = Get-ADUser -Identity $referencia -Properties *
             $Grupos = $userRef.MemberOf
             foreach ($Grupo in $Grupos) {
@@ -177,6 +184,59 @@ $btnVerificar.Add_Click(
                 $nomeGrupo = $nomeGrupo.SamAccountName
                 $cbxGrupos.Items.Add($nomeGrupo)
             }
+                # Configura conforme as opcoes das Combobox
+                # Verifica a filial
+                <#$grupo = ""
+                $escolha = $cbxContratacao.selectedItem
+                if ($escolha -eq "Sao Paulo") {
+                    $filial = "SP"
+                    $cbxGrupos.Items.Add("SINQIASP - Todos Funcionários")
+                }
+                if ($escolha -eq "Rio de Janeiro") {
+                    $filial = "RJ"
+                    $cbxGrupos.Items.Add("SINQIARJ - Todos Profissionais")
+                }
+                if ($escolha -eq "Belo Horizonte") {
+                    $filial = "MG"
+                    $grupo = ""
+                }
+                if ($escolha -eq "Salvador") {
+                    $filial = "BA"
+                    $cbxGrupos.Items.Add("SINQIASAL - Todos Colaboradores")
+                }
+                # Tipo de contratacao
+                $grupo = ""
+                $escolha = $cbxContratacao.selectedItem
+                if (($escolha -eq "PJ") -and ($filial -eq "SP")) {
+                    $cbxGrupos.Items.Add("SINQIASP - Funcionários PJ")
+                }
+                if (($escolha -eq "CLT") -and ($filial -eq "SP")) {
+                    $cbxGrupos.Items.Add("SINQIASP -  Funcionários CLT")
+                }
+                if (($escolha -eq "Estagio") -and ($filial -eq "SP")) {
+                    $cbxGrupos.Items.Add("SINQIASP - Estagiarios")
+                }
+                # Cargo
+                $grupo = ""
+                $escolha = $cbxCargo.selectedItem
+                if ($escolha -eq "Alocado" -and $filial -eq "SP") {
+                    $cbxGrupos.Items.Add("SINQIASP - Funcionários Alocados")
+                }
+                if (($escolha -eq "Coordenador") -and ($filial -eq "SP")) {
+                    $cbxGrupos.Items.Add("SINQIASP - Coordenadores")
+                }
+                if (($escolha -eq "Coordenador") -and ($filial -eq "RJ")) {
+                    $cbxGrupos.Items.Add("SINQIARJ - Coordenadores")
+                }
+                if (($escolha -eq "Gerente") -and ($filial -eq "SP")) {
+                    $cbxGrupos.Items.Add("SINQIASP - Gerentes")
+                }
+                if (($escolha -eq "Diretor") -and ($filial -eq "SP")) {
+                    $cbxGrupos.Items.Add("SINQIASP - Diretores")
+                }
+                if (($escolha -eq "Diretor") -and ($filial -eq "RJ")) {
+                    $cbxGrupos.Items.Add("SINQIARJ - Diretores")
+                }#>
             $Button.Enabled = $true
         }
         catch {
@@ -220,68 +280,6 @@ $Button.Add_Click(
             # Configura as referencias de grupo
             foreach ($Item in $cbxGrupos.CheckedItems) {
                 $grupo = $Item.ToString()
-                Add-ADGroupMember -Identity $grupo -Members $userAlias -Credential $CredDomain
-            }
-            # Configura conforme as opcoes das Combobox
-            # Verifica a filial
-            $grupo = ""
-            $escolha = $cbxContratacao.selectedItem
-            if ($escolha -eq "Sao Paulo") {
-                $filial = "SP"
-                $grupo = "SINQIASP - Todos Funcionários"
-            }
-            if ($escolha -eq "Rio de Janeiro") {
-                $filial = "RJ"
-                $grupo = "SINQIARJ - Todos Profissionais"
-            }
-            if ($escolha -eq "Belo Horizonte") {
-                $filial = "MG"
-                $grupo = ""
-            }
-            if ($escolha -eq "Salvador") {
-                $filial = "BA"
-                $grupo = "SINQIASAL - Todos Colaboradores"
-            }
-            if ($grupo -ne "") {
-                Add-ADGroupMember -Identity $grupo -Members $userAlias -Credential $CredDomain
-            }
-            # Tipo de contratacao
-            $grupo = ""
-            $escolha = $cbxContratacao.selectedItem
-            if (($escolha -eq "PJ") -and ($filial -eq "SP")) {
-                $grupo = "SINQIASP - Funcionários PJ"
-            }
-            if (($escolha -eq "CLT") -and ($filial -eq "SP")) {
-                $grupo = "SINQIASP -  Funcionários CLT"
-            }
-            if (($escolha -eq "Estagio") -and ($filial -eq "SP")) {
-                $grupo = "SINQIASP - Estagiarios"
-            }
-            if ($grupo -ne "") {
-                Add-ADGroupMember -Identity $grupo -Members $userAlias -Credential $CredDomain
-            }
-            # Cargo
-            $grupo = ""
-            $escolha = $cbxCargo.selectedItem
-            if (($escolha -eq "Alocado") -and ($filial -eq "SP")) {
-                $grupo = "SINQIASP - Funcionários Alocados"
-            }
-            if (($escolha -eq "Coordenador") -and ($filial -eq "SP")) {
-                $grupo = "SINQIASP - Coordenadores"
-            }
-            if (($escolha -eq "Coordenador") -and ($filial -eq "RJ")) {
-                $grupo = "SINQIARJ - Coordenadores"
-            }
-            if (($escolha -eq "Gerente") -and ($filial -eq "SP")) {
-                $grupo = "SINQIASP - Gerentes"
-            }
-            if (($escolha -eq "Diretor") -and ($filial -eq "SP")) {
-                $grupo = "SINQIASP - Diretores"
-            }
-            if (($escolha -eq "Diretor") -and ($filial -eq "RJ")) {
-                $grupo = "SINQIARJ - Diretores"
-            }
-            if ($grupo -ne "") {
                 Add-ADGroupMember -Identity $grupo -Members $userAlias -Credential $CredDomain
             }
             # Mostra na tela

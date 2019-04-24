@@ -3,6 +3,7 @@
 
 # Recebe a biblioteca
 Add-Type -assembly System.Windows.Forms
+Add-Type -AssemblyName PresentationFramework
 # Carrega o modulo
 Import-Module ActiveDirectory
 # Cria o formulario principal
@@ -81,25 +82,46 @@ $GUI.Controls.Add($txtReferencia)
 
 # Label para as opcoes de grupos
 $lblGrupos = New-Object System.Windows.Forms.Label
-$lblGrupos.Text = "Grupos:"
-$lblGrupos.Location  = New-Object System.Drawing.Point(0,110)
+$lblGrupos.Text = "Grupos Ref:"
+$lblGrupos.Location  = New-Object System.Drawing.Point(0,90)
 $lblGrupos.AutoSize = $true
 $GUI.Controls.Add($lblGrupos)
 
 # Cria a caixa de texto para as opcoes dos grupos
 $cbxGrupos = New-Object System.Windows.Forms.CheckedListBox
 $cbxGrupos.Width = 300
-$cbxGrupos.Location  = New-Object System.Drawing.Point(80,110)
+$cbxGrupos.Location  = New-Object System.Drawing.Point(80,90)
 $cbxGrupos.Enabled = $false
 $GUI.Controls.Add($cbxGrupos)
 
+# Cria a Label com o texto para o usuario de referencia
+$lblReferencia2 = New-Object System.Windows.Forms.Label
+$lblReferencia2.Text = "Padrao:"
+$lblReferencia2.Location  = New-Object System.Drawing.Point(380,90)
+$lblReferencia2.AutoSize = $true
+$GUI.Controls.Add($lblReferencia2)
+
+# Cria a caixa de texto para as opcoes dos grupos de referencia
+$cbxReferencia = New-Object System.Windows.Forms.CheckedListBox
+$cbxReferencia.Width = 300
+$cbxReferencia.Location  = New-Object System.Drawing.Point(430,90)
+$cbxReferencia.Enabled = $false
+$GUI.Controls.Add($cbxReferencia)
+
 # Cria o botao
 $Button = New-Object System.Windows.Forms.Button
-$Button.Location = New-Object System.Drawing.Size(400,27)
-$Button.Size = New-Object System.Drawing.Size(120,23)
+$Button.Location = New-Object System.Drawing.Size(550,27)
+$Button.Size = New-Object System.Drawing.Size(120,50)
 $Button.Text = "Criar"
 $Button.Enabled = $false
 $GUI.Controls.Add($Button)
+
+# Cria o botao de limpeza
+$Limpar = New-Object System.Windows.Forms.Button
+$Limpar.Location = New-Object System.Drawing.Size(400,27)
+$Limpar.Size = New-Object System.Drawing.Size(120,20)
+$Limpar.Text = "Limpar"
+$GUI.Controls.Add($Limpar)
 
 # Cria o botao para verificar
 $btnVerificar = New-Object System.Windows.Forms.Button
@@ -122,45 +144,6 @@ $lbl2linha.Location  = New-Object System.Drawing.Point(0,210)
 $lbl2linha.AutoSize = $true
 $GUI.Controls.Add($lbl2linha)
 
-# Selecionar opcoes
-$lblInfos = New-Object System.Windows.Forms.Label
-$lblInfos.Text = "Informacoes:"
-$lblInfos.Location  = New-Object System.Drawing.Point(0,90)
-$lblInfos.AutoSize = $true
-$GUI.Controls.Add($lblInfos)
-
-# Tipo de contratacao
-$cbxContratacao = New-Object System.Windows.Forms.ComboBox
-$cbxContratacao.Width = 100
-$cbxContratacao.Text = "Contrato"
-$cbxContratacao.Location  = New-Object System.Drawing.Point(280,90)
-$cbxContratacao.Items.Add("PJ")
-$cbxContratacao.Items.Add("CLT")
-$cbxContratacao.Items.Add("Estagio")
-$GUI.Controls.Add($cbxContratacao)
-
-# Cargo
-$cbxCargo = New-Object System.Windows.Forms.ComboBox
-$cbxCargo.Width = 100
-$cbxCargo.Text = "Cargo"
-$cbxCargo.Location  = New-Object System.Drawing.Point(180,90)
-$cbxCargo.Items.Add("Alocado")
-$cbxCargo.Items.Add("Coordenador")
-$cbxCargo.Items.Add("Gerente")
-$cbxCargo.Items.Add("Diretor")
-$GUI.Controls.Add($cbxCargo)
-
-# Filial
-$cbxCargo = New-Object System.Windows.Forms.ComboBox
-$cbxCargo.Width = 100
-$cbxCargo.Text = "Filial"
-$cbxCargo.Location  = New-Object System.Drawing.Point(80,90)
-$cbxCargo.Items.Add("Sao Paulo")
-$cbxCargo.Items.Add("Rio de Janeiro")
-$cbxCargo.Items.Add("Belo Horizonte")
-$cbxCargo.Items.Add("Salvador")
-$GUI.Controls.Add($cbxCargo)
-
 # Cria o evento do botao
 $btnVerificar.Add_Click(
     {
@@ -169,6 +152,13 @@ $btnVerificar.Add_Click(
             # Configura as referencias de grupo
             $referencia = $txtReferencia.Text
             $cbxGrupos.Enabled = $true
+            $cbxReferencia.Enabled = $true
+            # Adiciona os grupos principais
+            $gruposPrincipais = get-content "\\srsvm030\Scripts\NewUser\grupoList.txt"
+            foreach ($grupo in $gruposPrincipais) {
+                # Adiciona como opcao cada um dos setores
+                $cbxReferencia.Items.Add($grupo)
+            }
             $userRef = Get-ADUser -Identity $referencia -Properties *
             $Grupos = $userRef.MemberOf
             foreach ($Grupo in $Grupos) {
@@ -222,66 +212,8 @@ $Button.Add_Click(
                 $grupo = $Item.ToString()
                 Add-ADGroupMember -Identity $grupo -Members $userAlias -Credential $CredDomain
             }
-            # Configura conforme as opcoes das Combobox
-            # Verifica a filial
-            $grupo = ""
-            $escolha = $cbxContratacao.selectedItem
-            if ($escolha -eq "Sao Paulo") {
-                $filial = "SP"
-                $grupo = "SINQIASP - Todos Funcionários"
-            }
-            if ($escolha -eq "Rio de Janeiro") {
-                $filial = "RJ"
-                $grupo = "SINQIARJ - Todos Profissionais"
-            }
-            if ($escolha -eq "Belo Horizonte") {
-                $filial = "MG"
-                $grupo = ""
-            }
-            if ($escolha -eq "Salvador") {
-                $filial = "BA"
-                $grupo = "SINQIASAL - Todos Colaboradores"
-            }
-            if ($grupo -ne "") {
-                Add-ADGroupMember -Identity $grupo -Members $userAlias -Credential $CredDomain
-            }
-            # Tipo de contratacao
-            $grupo = ""
-            $escolha = $cbxContratacao.selectedItem
-            if (($escolha -eq "PJ") -and ($filial -eq "SP")) {
-                $grupo = "SINQIASP - Funcionários PJ"
-            }
-            if (($escolha -eq "CLT") -and ($filial -eq "SP")) {
-                $grupo = "SINQIASP -  Funcionários CLT"
-            }
-            if (($escolha -eq "Estagio") -and ($filial -eq "SP")) {
-                $grupo = "SINQIASP - Estagiarios"
-            }
-            if ($grupo -ne "") {
-                Add-ADGroupMember -Identity $grupo -Members $userAlias -Credential $CredDomain
-            }
-            # Cargo
-            $grupo = ""
-            $escolha = $cbxCargo.selectedItem
-            if (($escolha -eq "Alocado") -and ($filial -eq "SP")) {
-                $grupo = "SINQIASP - Funcionários Alocados"
-            }
-            if (($escolha -eq "Coordenador") -and ($filial -eq "SP")) {
-                $grupo = "SINQIASP - Coordenadores"
-            }
-            if (($escolha -eq "Coordenador") -and ($filial -eq "RJ")) {
-                $grupo = "SINQIARJ - Coordenadores"
-            }
-            if (($escolha -eq "Gerente") -and ($filial -eq "SP")) {
-                $grupo = "SINQIASP - Gerentes"
-            }
-            if (($escolha -eq "Diretor") -and ($filial -eq "SP")) {
-                $grupo = "SINQIASP - Diretores"
-            }
-            if (($escolha -eq "Diretor") -and ($filial -eq "RJ")) {
-                $grupo = "SINQIARJ - Diretores"
-            }
-            if ($grupo -ne "") {
+            foreach ($Item in $cbxReferencia.CheckedItems) {
+                $grupo = $Item.ToString()
                 Add-ADGroupMember -Identity $grupo -Members $userAlias -Credential $CredDomain
             }
             # Mostra na tela
@@ -301,6 +233,23 @@ $Button.Add_Click(
         $txtReferencia.Text = ""
         $Button.Enabled = $false
         $cbxGrupos.Enabled = $false
+        $cbxGrupos.Items.Clear()
+        $cbxReferencia.Enabled = $false
+        $cbxReferencia.Items.Clear()
+    }
+)
+
+$Limpar.Add_Click(
+    {
+        # Limpa os campos
+        $cbxReferencia.Items.Clear()
+        $cbxGrupos.Items.Clear()
+        $txtNome.Text = ""
+        $txtSobrenome.Text = ""
+        $cbxSetores.Text = ""
+        $txtReferencia.Text = ""
+        $lblResposta.Text = ""
+        $lbl2linha.Text = ""
     }
 )
 
