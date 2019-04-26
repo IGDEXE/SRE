@@ -1,4 +1,4 @@
-# GUI - Alterar licenca Office
+# GUI - Adicionar usuario em uma sala do Office
 # Ivo Dias
 
 # Criacao do formulario principal
@@ -6,7 +6,7 @@ Add-Type -assembly System.Windows.Forms # Recebe a biblioteca
 Import-Module MSOnline # Carrega o modulo
 $GUI = New-Object System.Windows.Forms.Form # Cria o formulario principal
 # Configura o formulario
-$GUI.Text ='TI - Alterar licenca Office' # Titulo
+$GUI.Text ='TI - Adicionar usuario em uma sala do Office' # Titulo
 $GUI.AutoSize = $true # Configura para aumentar caso necessario
 $GUI.StartPosition = 'CenterScreen' # Inicializa no centro da tela
 
@@ -43,40 +43,50 @@ $txtUsuario.Width = 100 # Configura o tamanho
 $txtUsuario.Location  = New-Object System.Drawing.Point(60,10) # Define em qual coordenada da tela vai ser desenhado
 $GUI.Controls.Add($txtUsuario) # Adiciona ao formulario principal
 
-# Office
-$lblOffice = New-Object System.Windows.Forms.Label # Cria a label
-$lblOffice.Text = "Licenca:" # Define um texto para ela
-$lblOffice.Location  = New-Object System.Drawing.Point(0,30) # Define em qual coordenada da tela vai ser desenhado
-$lblOffice.AutoSize = $true # Configura tamanho automatico
-$GUI.Controls.Add($lblOffice) # Adiciona ao formulario principal
+# Sala
+$lblSala = New-Object System.Windows.Forms.Label # Cria a label
+$lblSala.Text = "Sala:" # Define um texto para ela
+$lblSala.Location  = New-Object System.Drawing.Point(0,30) # Define em qual coordenada da tela vai ser desenhado
+$lblSala.AutoSize = $true # Configura tamanho automatico
+$GUI.Controls.Add($lblSala) # Adiciona ao formulario principal
 
-# Office
-$cbxOffice = New-Object System.Windows.Forms.ComboBox
-$cbxOffice.Width = 100
-$cbxOffice.Location  = New-Object System.Drawing.Point(60,30)
-$cbxOffice.Items.Add("Exchange")
-$cbxOffice.Items.Add("E1")
-$cbxOffice.Items.Add("E3")
-$GUI.Controls.Add($cbxOffice)
+# Sala
+$cbxSala = New-Object System.Windows.Forms.ComboBox
+$cbxSala.Width = 100
+$cbxSala.Location  = New-Object System.Drawing.Point(60,30)
+$cbxSala.Items.Add("Avengers")
+$cbxSala.Items.Add("Jumanji")
+$cbxSala.Items.Add("Matrix")
+$cbxSala.Items.Add("Star Wars")
+$cbxSala.Items.Add("Sonic")
+$cbxSala.Items.Add("Super Mario")
+$cbxSala.Items.Add("Pacman")
+$cbxSala.Items.Add("Tetris")
+$cbxSala.Items.Add("SAO 71")
+$cbxSala.Items.Add("SAO 72")
+$cbxSala.Items.Add("SAO 73")
+$cbxSala.Items.Add("Atari")
+$cbxSala.Items.Add("Nintendo")
+$GUI.Controls.Add($cbxSala)
 
 # Botao para fazer a troca
 $Button = New-Object System.Windows.Forms.Button # Cria um botao
 $Button.Location = New-Object System.Drawing.Size(190,15) # Define em qual coordenada da tela vai ser desenhado
 $Button.Size = New-Object System.Drawing.Size(120,23) # Define o tamanho
-$Button.Text = "Modificar" # Define o texto
+$Button.Text = "Adicionar" # Define o texto
 $GUI.Controls.Add($Button) # Adiciona ao formulario principal
 
 # Label para receber o retorno do procedimento
 $lblResposta = New-Object System.Windows.Forms.Label # Cria a label
 $lblResposta.Text = "" # Coloca um texto em branco
-$lblResposta.Location  = New-Object System.Drawing.Point(0,50) # Define em qual coordenada da tela vai ser desenhado
+$lblResposta.Location  = New-Object System.Drawing.Point(0,55) # Define em qual coordenada da tela vai ser desenhado
 $lblResposta.AutoSize = $true # Configura tamanho automatico
 $GUI.Controls.Add($lblResposta) # Adiciona ao formulario principal
 
 # Label para receber o erro
 $lblErro = New-Object System.Windows.Forms.Label # Cria a label
 $lblErro.Text = "" # Coloca um texto em branco
-$lblErro.Location  = New-Object System.Drawing.Point(0,65) # Define em qual coordenada da tela vai ser desenhado
+$lblErro.Location  = New-Object System.Drawing.Point(0,70) # Define em qual coordenada da tela vai ser desenhado
 $lblErro.AutoSize = $true # Configura tamanho automatico
 $GUI.Controls.Add($lblErro) # Adiciona ao formulario principal
 
@@ -88,15 +98,32 @@ $Button.Add_Click(
             # Recebe a licenca atual
             $usuario = $txtUsuario.Text
             $usuarioMail = $usuario + '@sinqia.com.br'
-            $Temp = Get-MsolUser -UserPrincipalName $usuarioMail
-            $Antigo = $Temp.Licenses.AccountSKUid
-            # Configura a nova
-            $Novo = $cbxOffice.selectedItem
-            if ($Novo -eq "Exchange") { $License = "ATTPS:EXCHANGESTANDARD" }
-            if ($Novo -eq "E1") { $License = "ATTPS:STANDARDPACK" }
-            if ($Novo -eq "E3") { $License = "ATTPS:ENTERPRISEPACK" }
-            Set-MsolUserLicense -UserPrincipalName "$usuarioMail" -AddLicenses "$License" -RemoveLicenses "$Antigo" # Faz a troca
-            $resposta = "O licenciamento da conta $usuario foi alterado de $Antigo para $Novo" # Utiliza a label para notificar na tela o resultado
+            # Verifica se o usuario existe
+            if (Get-MsolUser -UserPrincipalName $usuarioMail) {
+                # Configura a nova
+                $Novo = $cbxSala.selectedItem
+                if ($Novo -eq "Avengers") { $sala = "Avengers" }
+                if ($Novo -eq "Jumanji") { $sala = "Jumanji" }
+                if ($Novo -eq "Matrix") { $sala = "Matrix" }
+                if ($Novo -eq "Star Wars") { $sala = "StarWars" }
+                if ($Novo -eq "Sonic") { $sala = "Sonic" }
+                if ($Novo -eq "Super Mario") { $sala = "SuperMario" }
+                if ($Novo -eq "Pacman") { $sala = "Pacman" }
+                if ($Novo -eq "Tetris") { $sala = "Tetris" }
+                if ($Novo -eq "SAO 71") { $sala = "room.sao71" }
+                if ($Novo -eq "SAO 72") { $sala = "room.sao72" }
+                if ($Novo -eq "SAO 73") { $sala = "room.sao73" }
+                if ($Novo -eq "Atari") { $sala = "Atari" }
+                if ($Novo -eq "Nintendo") { $sala = "Nintendo" }
+                $sala += '@sinqia.com.br'
+                $contatos = (Get-CalendarProcessing -Identity "$sala").BookInPolicy # Recebe os atuais
+                $contatos += $usuarioMail # Adiciona o usuario
+                Set-CalendarProcessing -Identity $sala -AutomateProcessing AutoAccept -BookInPolicy $contatos # Faz a troca
+                $resposta = "O usuario $usuario foi adionado na sala $Novo" # Utiliza a label para notificar na tela o resultado
+            } else {
+                $resposta = "|Ocorreu um erro ao desbloquear a conta|"
+                $lblErro.Text = "|O usuario $usuario nao foi localizado|"
+            }
         }
         # Caso encontre algum erro ao fazer o procedimento, retorna
         catch {
@@ -104,7 +131,7 @@ $Button.Add_Click(
             $resposta = "|Ocorreu um erro ao desbloquear a conta|" # Utiliza a label para notificar na tela o resultado
             $lblErro.Text = "|Erro: $ErrorMessage|" # Utiliza a segunda label para mostrar exatamente qual o erro
         }
-        $lblResposta.Text =  $resposta # Exibe na tela o retorno do procedimento
+        $lblResposta.Text = $resposta # Exibe na tela o retorno do procedimento
         $txtUsuario.Text = "" # Limpa a caixa de texto, para um proximo uso
     }
 )
