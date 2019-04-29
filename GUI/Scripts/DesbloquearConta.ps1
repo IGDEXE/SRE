@@ -60,8 +60,8 @@ $Button.Add_Click(
     {
         # Tenta fazer o desbloqueio da conta
         try {
-            $Conta = $TextBox.Text
-            Unlock-ADAccount -Identity $Conta -Credential $CredDomain
+            $Conta = $TextBox.Text # Recebe o usuario
+            Unlock-ADAccount -Identity $Conta -Credential $CredDomain # Faz o desbloqueio
             $resposta = "A conta $conta foi desbloqueada"
         }
         catch {

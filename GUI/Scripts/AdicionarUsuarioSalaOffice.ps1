@@ -1,19 +1,18 @@
 # GUI - Adicionar usuario em uma sala do Office
 # Ivo Dias
 
-# Criacao do formulario principal
+# Formulario principal
 Add-Type -assembly System.Windows.Forms # Recebe a biblioteca
 Import-Module MSOnline # Carrega o modulo
 $GUI = New-Object System.Windows.Forms.Form # Cria o formulario principal
-# Configura o formulario
 $GUI.Text ='TI - Adicionar usuario em uma sala do Office' # Titulo
 $GUI.AutoSize = $true # Configura para aumentar caso necessario
 $GUI.StartPosition = 'CenterScreen' # Inicializa no centro da tela
 
-# Recebe a credencial
+# Credencial
 $userADM = $env:UserName # Recebe o usuario
 $userADM += '@sinqia.com.br' # Configura o e-mail
-$LiveCred = Get-Credential -Message "Informe as credenciais de Administrador do Office 365" -UserName $userADM
+$LiveCred = Get-Credential -Message "Informe as credenciais de Administrador do Office 365" -UserName $userADM # Recebe a credencial
 
 # Conecta no Office
 try {
@@ -36,8 +35,6 @@ $lblUsuario.Text = "Usuario:" # Define um texto para ela
 $lblUsuario.Location  = New-Object System.Drawing.Point(0,10) # Define em qual coordenada da tela vai ser desenhado
 $lblUsuario.AutoSize = $true # Configura tamanho automatico
 $GUI.Controls.Add($lblUsuario) # Adiciona ao formulario principal
-
-# Caixa de texto para receber Usuario
 $txtUsuario = New-Object System.Windows.Forms.TextBox # Cria a caixa de texto
 $txtUsuario.Width = 100 # Configura o tamanho
 $txtUsuario.Location  = New-Object System.Drawing.Point(60,10) # Define em qual coordenada da tela vai ser desenhado
@@ -49,25 +46,23 @@ $lblSala.Text = "Sala:" # Define um texto para ela
 $lblSala.Location  = New-Object System.Drawing.Point(0,30) # Define em qual coordenada da tela vai ser desenhado
 $lblSala.AutoSize = $true # Configura tamanho automatico
 $GUI.Controls.Add($lblSala) # Adiciona ao formulario principal
-
-# Sala
-$cbxSala = New-Object System.Windows.Forms.ComboBox
-$cbxSala.Width = 100
-$cbxSala.Location  = New-Object System.Drawing.Point(60,30)
-$cbxSala.Items.Add("Avengers")
-$cbxSala.Items.Add("Jumanji")
-$cbxSala.Items.Add("Matrix")
-$cbxSala.Items.Add("Star Wars")
-$cbxSala.Items.Add("Sonic")
-$cbxSala.Items.Add("Super Mario")
-$cbxSala.Items.Add("Pacman")
-$cbxSala.Items.Add("Tetris")
-#$cbxSala.Items.Add("SAO 71")
-#$cbxSala.Items.Add("SAO 72")
-#$cbxSala.Items.Add("SAO 73")
-$cbxSala.Items.Add("Atari")
-$cbxSala.Items.Add("Nintendo")
-$GUI.Controls.Add($cbxSala)
+$cbxSala = New-Object System.Windows.Forms.ComboBox # Cria uma Combobox para mostrar as opcoes
+$cbxSala.Width = 100 # Define um tamanho
+$cbxSala.Location  = New-Object System.Drawing.Point(60,30) # Define a localizacao
+$cbxSala.Items.Add("Avengers") # Exemplo de opcoes
+$cbxSala.Items.Add("Jumanji") # Exemplo de opcoes
+$cbxSala.Items.Add("Matrix") # Exemplo de opcoes
+$cbxSala.Items.Add("Star Wars") # Exemplo de opcoes
+$cbxSala.Items.Add("Sonic") # Exemplo de opcoes
+$cbxSala.Items.Add("Super Mario") # Exemplo de opcoes
+$cbxSala.Items.Add("Pacman") # Exemplo de opcoes
+$cbxSala.Items.Add("Tetris") # Exemplo de opcoes
+#$cbxSala.Items.Add("SAO 71") # Exemplo de opcoes
+#$cbxSala.Items.Add("SAO 72") # Exemplo de opcoes
+#$cbxSala.Items.Add("SAO 73") # Exemplo de opcoes
+$cbxSala.Items.Add("Atari") # Exemplo de opcoes
+$cbxSala.Items.Add("Nintendo") # Exemplo de opcoes
+$GUI.Controls.Add($cbxSala) # Adiciona ao formulario principal
 
 # Botao para fazer a troca
 $Button = New-Object System.Windows.Forms.Button # Cria um botao
@@ -100,7 +95,7 @@ $Button.Add_Click(
             $usuarioMail = $usuario + '@sinqia.com.br'
             # Verifica se o usuario existe
             if (Get-MsolUser -UserPrincipalName $usuarioMail) {
-                # Configura a nova
+                # Converte a opcao no valor registrado no Office
                 $Novo = $cbxSala.selectedItem
                 if ($Novo -eq "Avengers") { $sala = "Avengers" }
                 if ($Novo -eq "Jumanji") { $sala = "Jumanji" }

@@ -73,9 +73,9 @@ $Button.Add_Click(
     {
         # Tenta fazer o desbloqueio da conta
         try {
-            $Conta = $txtUsuario.Text
-            $Grupo = $txtGrupo.Text
-            Remove-ADGroupMember -Identity "$Grupo" -Members "$Conta" -Credential $CredDomain
+            $Conta = $txtUsuario.Text # Recebe o usuario
+            $Grupo = $txtGrupo.Text # Recebe o grupo
+            Remove-ADGroupMember -Identity "$Grupo" -Members "$Conta" -Credential $CredDomain # Remove o usuario do grupo
             $resposta = "A $Conta foi removida no grupo $Grupo"
             $Linha2 = ""
         }

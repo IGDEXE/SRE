@@ -88,15 +88,15 @@ $Button.Add_Click(
         # Faz o procedimento
         try {
             # Recebe os dados
-            $nome = $txtNome.Text
-            $sobrenome = $txtSobrenome.Text
-            $referencia = $txtReferencia.Text
+            $nome = $txtNome.Text # Recebe o nome 
+            $sobrenome = $txtSobrenome.Text # Recebe o sobrenome
+            $referencia = $txtReferencia.Text # Recebe um usuario de referencia
             # Configura os dados
-            $userName = "$nome $sobrenome"
-            $userAlias = ("$nome.$sobrenome").ToLower()
-            $userMail = "$userAlias@sinqia.com.br"
-            $OU = "OU=Users,$DomainDC"
-            $Password = Get-Date -Format Pass@mmss
+            $userName = "$nome $sobrenome" # Configura o nome de exibicao
+            $userAlias = ("$nome.$sobrenome").ToLower() # Cria o login
+            $userMail = "$userAlias@sinqia.com.br" # Cria o e-mail
+            $OU = "OU=Users,$DomainDC" # Configura a OU
+            $Password = Get-Date -Format Pass@mmss # Cria a senha
             # Cria o usuario
             New-ADUser -SamAccountName $userAlias -Name $userName -GivenName $nome -Surname $sobrenome -EmailAddress $userMail -Path "$OU" -Credential $CredDomain
             Set-ADUser -Identity $userAlias -UserPrincipalName $userMail -Credential $CredDomain
@@ -107,12 +107,12 @@ $Button.Add_Click(
             Set-ADUser -Identity $userAlias -Replace @{displayNamePrintable="$userName"} -Credential $CredDomain
             Set-ADUser -Identity $userAlias -Replace @{mailNickname="$userAlias"} -Credential $CredDomain
             Set-ADAccountPassword -Identity $userAlias -NewPassword (ConvertTo-SecureString -AsPlainText $Password -Force) -Credential $CredDomain
-            Set-ADUser -Identity $userAlias -Enabled $true -Credential $CredDomain
+            Set-ADUser -Identity $userAlias -Enabled $true -Credential $CredDomain # Ativa o usuario 
             # Configura as referencias de grupo
-            $userRef = Get-ADUser -Identity $referencia -Properties *
-            $memberOf = $userRef.MemberOf
+            $userRef = Get-ADUser -Identity $referencia -Properties * # Recebe os dados do usuario de referencia
+            $memberOf = $userRef.MemberOf # Recebe todos os grupos de referencia
             foreach ($group in $memberof) {
-                Add-ADGroupMember -Identity $group -Members $userAlias -Credential $CredDomain
+                Add-ADGroupMember -Identity $group -Members $userAlias -Credential $CredDomain # Atribui os mesmos grupos ao usuario novo
             }
             # Mostra na tela
             $resposta = "Usuario $userName criado com sucesso"

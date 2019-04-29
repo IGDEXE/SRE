@@ -1,19 +1,18 @@
 # GUI - Alterar licenca Office
 # Ivo Dias
 
-# Criacao do formulario principal
+# Formulario principal
 Add-Type -assembly System.Windows.Forms # Recebe a biblioteca
 Import-Module MSOnline # Carrega o modulo
 $GUI = New-Object System.Windows.Forms.Form # Cria o formulario principal
-# Configura o formulario
 $GUI.Text ='TI - Alterar licenca Office' # Titulo
 $GUI.AutoSize = $true # Configura para aumentar caso necessario
 $GUI.StartPosition = 'CenterScreen' # Inicializa no centro da tela
 
-# Recebe a credencial
+# Credencial
 $userADM = $env:UserName # Recebe o usuario
 $userADM += '@sinqia.com.br' # Configura o e-mail
-$LiveCred = Get-Credential -Message "Informe as credenciais de Administrador do Office 365" -UserName $userADM
+$LiveCred = Get-Credential -Message "Informe as credenciais de Administrador do Office 365" -UserName $userADM # Recebe as credenciais
 
 # Conecta no Office
 try {
@@ -36,8 +35,6 @@ $lblUsuario.Text = "Usuario:" # Define um texto para ela
 $lblUsuario.Location  = New-Object System.Drawing.Point(0,10) # Define em qual coordenada da tela vai ser desenhado
 $lblUsuario.AutoSize = $true # Configura tamanho automatico
 $GUI.Controls.Add($lblUsuario) # Adiciona ao formulario principal
-
-# Caixa de texto para receber Usuario
 $txtUsuario = New-Object System.Windows.Forms.TextBox # Cria a caixa de texto
 $txtUsuario.Width = 100 # Configura o tamanho
 $txtUsuario.Location  = New-Object System.Drawing.Point(60,10) # Define em qual coordenada da tela vai ser desenhado
@@ -49,15 +46,13 @@ $lblOffice.Text = "Licenca:" # Define um texto para ela
 $lblOffice.Location  = New-Object System.Drawing.Point(0,30) # Define em qual coordenada da tela vai ser desenhado
 $lblOffice.AutoSize = $true # Configura tamanho automatico
 $GUI.Controls.Add($lblOffice) # Adiciona ao formulario principal
-
-# Office
-$cbxOffice = New-Object System.Windows.Forms.ComboBox
-$cbxOffice.Width = 100
-$cbxOffice.Location  = New-Object System.Drawing.Point(60,30)
-$cbxOffice.Items.Add("Exchange")
-$cbxOffice.Items.Add("E1")
-$cbxOffice.Items.Add("E3")
-$GUI.Controls.Add($cbxOffice)
+$cbxOffice = New-Object System.Windows.Forms.ComboBox # Cria uma Combobox
+$cbxOffice.Width = 100 # Define um tamanho
+$cbxOffice.Location  = New-Object System.Drawing.Point(60,30) # Define a localizacao
+$cbxOffice.Items.Add("Exchange") # Exemplo de opcoes 
+$cbxOffice.Items.Add("E1") # Exemplo de opcoes
+$cbxOffice.Items.Add("E3") # Exemplo de opcoes
+$GUI.Controls.Add($cbxOffice) # Adiciona ao formulario principal
 
 # Botao para fazer a troca
 $Button = New-Object System.Windows.Forms.Button # Cria um botao
@@ -85,11 +80,11 @@ $Button.Add_Click(
     {
         # Tenta fazer o desbloqueio da conta
         try {
-            # Recebe a licenca atual
-            $usuario = $txtUsuario.Text
-            $usuarioMail = $usuario + '@sinqia.com.br'
-            $Temp = Get-MsolUser -UserPrincipalName $usuarioMail
-            $Antigo = $Temp.Licenses.AccountSKUid
+            
+            $usuario = $txtUsuario.Text # Recebe o usuario
+            $usuarioMail = $usuario + '@sinqia.com.br' # Converte para o e-mail
+            $Temp = Get-MsolUser -UserPrincipalName $usuarioMail # Recebe os dados do usuario
+            $Antigo = $Temp.Licenses.AccountSKUid # Recebe a licenca atual
             # Configura a nova
             $Novo = $cbxOffice.selectedItem
             if ($Novo -eq "Exchange") { $License = "ATTPS:EXCHANGESTANDARD" }

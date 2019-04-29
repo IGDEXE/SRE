@@ -61,20 +61,17 @@ $Button.Add_Click(
     {
         # Tenta fazer o desligamento do usuario
         try {
-            $Conta = $txtUsuario.Text
+            $Conta = $txtUsuario.Text # Recebe o usuario
             # Removendo grupos do AD
-            $userGroups = Get-ADUser -Identity $Conta -Properties *
-            $userGroups = $userGroups.MemberOf
+            $UserInfo = Get-ADUser -Identity $Conta -Properties * # Recebe as informacoes do usuario
+            $userGroups = $UserInfo.MemberOf # Recebe os grupos onde ele esta
             foreach ($group in $userGroups) {
-                Remove-ADGroupMember -Identity $group -Members $Conta -Confirm:$false -Credential $CredDomain
+                Remove-ADGroupMember -Identity $group -Members $Conta -Confirm:$false -Credential $CredDomain # Remove ele de todos os grupos
             }
-            # Move de OU
-            $OU = Get-ADUser -Identity $Conta -Properties *
-            $OU = $OU.DistinguishedName
-            $OuDesligados = "OU=Usuários Desativados,$DomainDC"
-            Move-ADObject -Identity "$OU" -TargetPath "$OuDesligados" -Credential $CredDomain
-            # Desativa o usuario
-            Set-ADUser -Identity $Conta -Enabled $false -Credential $CredDomain
+            $OU = $UserInfo.DistinguishedName # Recebe a OU atual
+            $OuDesligados = "OU=Usuários Desativados,$DomainDC" # Recebe a OU para desligados
+            Move-ADObject -Identity "$OU" -TargetPath "$OuDesligados" -Credential $CredDomain # Move de OU
+            Set-ADUser -Identity $Conta -Enabled $false -Credential $CredDomain # Desativa o usuario
             $resposta = "A conta $Conta foi desligada"
             $Linha2 = ""
         }
