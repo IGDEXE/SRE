@@ -83,11 +83,11 @@ $Button.Add_Click(
             $nomeGrupo = $txtNome.Text # Recebe o nome do grupo
             $Email = $txtEmail.Text # Recebe o nome do grupo
             $Email += '@sinqia.com.br' # Configura o e-mail
-            $usuariosGrupo = $txtUsuarios.Lines # Recebe os usuarios
+            $usuariosGrupo = $txtUsuarios.Lines # Recebe os usuarios, um por linha
             $OU = "OU=Distribuicao,OU=Grupos,$DomainDC" # Configura a OU
-            New-ADGroup -Path "$OU" -Name "$nomeGrupo" -GroupScope DomainLocal -GroupCategory Distribution -Credential $CredDomain
-            Set-ADGroup -Identity $nomeGrupo -Replace @{mail="$Email"} -Credential $CredDomain
-            Set-ADGroup -Identity $nomeGrupo -Replace @{proxyAddresses="SMTP:$Email"} -Credential $CredDomain
+            New-ADGroup -Path "$OU" -Name "$nomeGrupo" -GroupScope DomainLocal -GroupCategory Distribution -Credential $CredDomain # Cria o grupo
+            Set-ADGroup -Identity $nomeGrupo -Replace @{mail="$Email"} -Credential $CredDomain # Define o e-mail
+            Set-ADGroup -Identity $nomeGrupo -Replace @{proxyAddresses="SMTP:$Email"} -Credential $CredDomain # Configura o SMTP
             # Mostra na tela
             $resposta = "Criado o grupo $nomeGrupo, com os usuarios:"
             foreach ($usuario in $usuariosGrupo) {
