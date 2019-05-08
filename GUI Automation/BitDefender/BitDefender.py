@@ -7,3 +7,5 @@ pyautogui.hotkey('win','r');pyautogui.typewrite('\\\srsdcsp01\\NETLOGON\\Bitdefe
 time.sleep(2)
 # Abre o arquivo de instalação
 pyautogui.click(520,479);pyautogui.typewrite('epskit_x64');pyautogui.press('enter')
+# Mostra mensagem na tela
+pyautogui.alert(title='INFRA - BitDefender', text='Aguarde a instalacao, pode demorar um pouco', button='OK')
